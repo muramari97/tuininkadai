@@ -3,27 +3,36 @@ import ReactDOM from 'react-dom';
 import {Page, Button, Toolbar, Row, Col} from 'react-onsenui';
 import {notification} from 'onsenui';
 
-import "../www/css/style.css";
+import Item from './Item.jsx';
+import '../www/css/style.css';
 
 export default class App extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       data:0,
+      time:0,
       items:[],
     };
     this.addItem = this.addItem.bind(this);
     this.DisPlay = this.DisPlay.bind(this);
   }
+
   addItem(){
+    var s = this.state.data;
+    if(s == 0){
+      notification.alert('体温が入力されてないよ！');
+      return;
+    }
     var newitems = this.state.items;
-    newitems.push({data:this.state.data});
-    this.setState({data:0,items:newitems});
+    var d = new Date().getDate();
+    newitems.push({data:this.state.data,time:d});
+    this.setState({data:0,time:0,items:newitems});
   }
 
   DisPlay(val){
     var s = this.state;
-    if(this.state.data > 10){
+    if(this.state.data > 9){
       s.data = this.state.data + val/10;
     }
     else if(this.state.data > 0){
@@ -33,10 +42,6 @@ export default class App extends React.Component {
       s.data = val;
     }
     this.setState(s);
-  }
-
-  alertPopup() {
-    notification.alert('体温が入力されてないよ！');
   }
 
   renderToolbar() {
@@ -78,6 +83,7 @@ export default class App extends React.Component {
         <div className = "null"></div>
         <div className = "btn2">記録閲覧</div>
         
+        {this.state.items.map(item => {return <Item data={item.data} time={item.time}></Item>})}
       </Page>
     );
   }
