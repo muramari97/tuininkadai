@@ -18,6 +18,29 @@ export default class App extends React.Component {
     this.DisPlay = this.DisPlay.bind(this);
   }
 
+  componentDidMount(){
+    document.addEventListener("DOMContentLoad",() => {
+      firestore
+        .collection("data")
+        .get()
+        .then((snapshot) => {
+          if(snapshot.empty){
+            console.log("no matching document");
+          }
+
+          var items = [];
+
+          snapsshot.forEach((data) => {
+            var item = data.data();
+
+            items.push({data:item.data,time:item.data.toDate()
+            });
+          });
+          this.setState({data:0,time:0,items:items});
+        });
+    });
+  }
+
   addItem(){
     var s = this.state.data;
     if(s == 0){
@@ -25,9 +48,22 @@ export default class App extends React.Component {
       return;
     }
     var newitems = this.state.items;
-    var d = new Date().getDate();
+    var d = new Date();
     newitems.push({data:this.state.data,time:d});
     this.setState({data:0,time:0,items:newitems});
+
+    firestore
+      .collection("data")
+      .add({
+        data:this.state.data,
+        time:d
+      })
+      .then((docRef) => {
+        console.log("Document written with ID:",docRef.id);
+      })
+      .catch((error) => {
+        console.error("Error adding document:",error);
+      })
   }
 
   DisPlay(val){
