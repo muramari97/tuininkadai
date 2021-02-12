@@ -23,29 +23,6 @@ export default class App extends React.Component {
     this.props.navigator.pushPage({component:SecondPage});
   }
 
-  componentDidMount(){
-    document.addEventListener("DOMContentLoad",() => {
-      firestore
-        .collection("data")
-        .get()
-        .then((snapshot) => {
-          if(snapshot.empty){
-            console.log("no matching document");
-          }
-
-          var items = [];
-
-          snapsshot.forEach((data) => {
-            var item = data.data();
-
-            items.push({data:item.data,time:item.data.toDate()
-            });
-          });
-          this.setState({data:0,time:0,items:items});
-        });
-    });
-  }
-
   addItem(){
     var s = this.state.data;
     if(s == 0){

@@ -5,24 +5,27 @@ import {Toolbar,Page,Button,BackButton,Card} from 'react-onsenui';
 export default class Item extends React.Component{
   constructor(props){
     super(props);
-    this.ChageData = this.ChangeData.bind(this);
+    this.state = {items:[]};
   }
 
-  ChangeData(){
-    var s = this.state.items;
-    if(s == 0){
-      return;
-    }
-    for(var i=0;i < s.length-2;i++){
-      for(var j=i+1;j < s.length-1;j++){
-        if(s[i].time < s[j].time){
-          box = s[i];
-          s[i] = s[j];
-          s[j] = s[i];
+  componentDidMount(){
+    firestore
+      .collection("data")
+      .get()
+      .then((snapshot) => {
+        if(snapshot.empty){
+          console.log("no matching document");
         }
-      }
-    }
-    this.setState({items:s});
+
+        var items = [];
+        snapshot.forEach((data) => {
+          var item = data.data();
+          items.push({data:item.data,time:item.time.toDate()
+          });
+        });
+        const newitems = [...items].sort((a,b) => b.time - a.time);
+        this.setState({items:newitems});
+      });
   }
 
   renderToolbar(){
@@ -36,9 +39,10 @@ export default class Item extends React.Component{
 
   render(){
     return(
-      <Page>
-        <p>体温：{this.props.data+"℃"}</p>
-        <p>記録日：{this.props.time.getFullYear()+"年"+(this.props.time.getMonth()+1)+"月"+this.props.time.getDate()+"日"+this.props.time.getHours()+"時"+this.props.time.getMinutes()+"分"+this.props.time.getSeconds()+"秒"}</p>
+      <Page renderToolbar={this.renderToolbar}>
+        {this.state.items.map((item) => (
+            <p className="List">{item.time.getFullYear()+"年"+(item.time.getMonth()+1)+"月"+item.time.getDate()+"日"+item.time.getHours()+"時"+item.time.getMinutes()+"分"+item.time.getSeconds()+"秒　　"+item.data+"℃"} </p>
+        ))}
       </Page>
     )
   }
